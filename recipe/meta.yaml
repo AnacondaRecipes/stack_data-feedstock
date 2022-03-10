@@ -11,20 +11,22 @@ source:
 
 build:
   number: 0
-  script: '{{ PYTHON }} -m pip install . --no-deps --ignore-installed -vvv '
+  script: {{ PYTHON }} -m pip install . --no-deps --ignore-installed -vvv
   noarch: python
 
 requirements:
   host:
     - pip
-    - python >=3.5
+    - python
     - setuptools >=44
     - setuptools_scm >=3.4.3
+    - toml
+    - wheel
   run:
+    - python >=3.5
     - asttokens
     - executing
     - pure_eval
-    - python >=3.5
 
 test:
   imports:
@@ -35,13 +37,13 @@ test:
     - pip
 
 about:
-  home: http://github.com/alexmojaki/stack_data
+  home: https://github.com/alexmojaki/stack_data
   license: MIT
   license_family: MIT
   license_file: LICENSE.txt
   summary: Extract data from python stack frames and tracebacks for informative displays
-  doc_url: http://github.com/alexmojaki/stack_data
-  dev_url: http://github.com/alexmojaki/stack_data
+  doc_url: https://github.com/alexmojaki/stack_data/blob/master/README.md
+  dev_url: https://github.com/alexmojaki/stack_data
 
 extra:
   recipe-maintainers:
