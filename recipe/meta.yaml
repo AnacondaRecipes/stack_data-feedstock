@@ -1,18 +1,17 @@
 {% set name = "stack_data" %}
-{% set version = "0.2.0" %}
+{% set version = "0.6.3" %}
 
 package:
   name: {{ name|lower }}
   version: {{ version }}
 
 source:
-  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
-  sha256: 45692d41bd633a9503a5195552df22b583caf16f0b27c4e58c98d88c8b648e12
+  url: https://pypi.org/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz
+  sha256: 836a778de4fec4dcd1dcd89ed8abff8a221f58308462e1c4aa2a3cf30148f0b9
 
 build:
   number: 0
-  script: {{ PYTHON }} -m pip install . --no-deps --ignore-installed -vvv
-  noarch: python
+  script: {{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
 
 requirements:
   host:
@@ -20,21 +19,37 @@ requirements:
     - python
     - setuptools >=44
     - setuptools_scm >=3.4.3
-    - toml
     - wheel
   run:
-    - python >=3.5
-    - asttokens
-    - executing
+    - python
+    - asttokens >=2.1.0
+    - executing >=1.2.0
     - pure_eval
 
+# Regex mismatch
+{% set tests_to_skip = "test_executing_style_defs" %}
+{% set tests_to_skip = tests_to_skip +  " or test_pygments_example" %}
+
+# no littleutils in main channel to run test_formatter.py/test_serializer.py
+{% set ignore_tests = "--ignore=tests/test_formatter.py" %}
+{% set ignore_tests = ignore_tests + " --ignore=tests/test_serializer.py" %}
+
 test:
+  source_files:
+    - tests
   imports:
     - stack_data
+    - stack_data.serializing
+    - stack_data.utils
   commands:
     - pip check
+    - python -c "from importlib.metadata import version; assert(version('{{ name }}')=='{{ version }}')"
+    - pytest -v tests {{ ignore_tests }} -k "not({{ tests_to_skip }})"
   requires:
     - pip
+    - pytest
+    - cython
+    - typeguard
 
 about:
   home: https://github.com/alexmojaki/stack_data
@@ -42,6 +57,7 @@ about:
   license_family: MIT
   license_file: LICENSE.txt
   summary: Extract data from python stack frames and tracebacks for informative displays
+  description: This is a library that extracts data from stack frames and tracebacks, particularly to display more useful tracebacks than the default.
   doc_url: https://github.com/alexmojaki/stack_data/blob/master/README.md
   dev_url: https://github.com/alexmojaki/stack_data
 
