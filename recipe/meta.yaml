@@ -10,7 +10,7 @@ source:
   sha256: 836a778de4fec4dcd1dcd89ed8abff8a221f58308462e1c4aa2a3cf30148f0b9
 
 build:
-  number: 0
+  number: 1
   script: {{ PYTHON }} -m pip install . -vv --no-deps --no-build-isolation
 
 requirements:
@@ -44,12 +44,14 @@ test:
   commands:
     - pip check
     - python -c "from importlib.metadata import version; assert(version('{{ name }}')=='{{ version }}')"
-    - pytest -v tests {{ ignore_tests }} -k "not({{ tests_to_skip }})"
+    # py3.15: typeguard has no py315 build on pkgs/main, so the pytest
+    # requirements cannot be solved. Skip the suite on py3.15.
+    - pytest -v tests {{ ignore_tests }} -k "not({{ tests_to_skip }})"  # [py<315]
   requires:
     - pip
-    - pytest
-    - cython
-    - typeguard
+    - pytest  # [py<315]
+    - cython  # [py<315]
+    - typeguard  # [py<315]
 
 about:
   home: https://github.com/alexmojaki/stack_data
